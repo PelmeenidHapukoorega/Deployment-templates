@@ -63,3 +63,65 @@ resource actionGroup 'Microsoft.Insights/actionGroups@2023-01-01' = if (!empty(a
   }
   tags: tags
 }
+
+resource cpuAlerts 'Microsoft.Insights/metricAlerts@2018-03-01' = [for (targetId, i) in (enableCpuAlert && !empty(alertEmail) ? alertTargets : []): {
+  name: '${prefix}-cpu-alert-${i}'
+  location: 'global'
+  properties: {
+    severity: 3
+    enabled: true
+    scopes: [targetId]
+    evaluationFrequency: 'PT1M'
+    windowSize: 'PT5M'
+    criteria: {
+      'odata.type': 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+      allOf: [
+        {
+          name: 'HighCPU'
+          metricNamespace: 'Microsoft.Compute/virtualMachines'
+          metricName: 'Percentage CPU'
+          operator: 'GreaterThan'
+          threshold: cpuThreshold
+          timeAggregation: 'Average'
+        }
+      ]
+    }
+    actions: [
+      {
+        actionGroupId: actionGroup.id
+      }
+    ] 
+  }
+  tags: tags
+}]
+
+resource memoryAlerts 'Microsoft.Insights/metricAlerts@2018-03-01' = [for (targetId, i) in (enableMemoryAlert && !empty(alertEmail) ? alertTargets : []): {
+  name: '${prefix}-memory-alert-${i}'
+  location: 'global'
+  properties: {
+    severity: 3
+    enabled:true
+    scopes: [targetId]
+    evaluationFrequency: 'PT1M'
+    windowSize: 'PT5M'
+    criteria: {
+      'odata.type': 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
+      allOf: [
+        {
+          name: 'LowMemory'
+          metricNamespace: 'Microsoft.Compute/virtualMachines'
+          metricName: 'Available Memory Bytes'
+          operator: 'LessThan'
+          threshold: memoryThreshold
+          timeAggregation: 'Average'
+        }
+      ] 
+    }
+    actions: [
+      {
+        actionGroupId: actionGroup.id
+      }
+    ] 
+  }
+  tags: tags
+}]
