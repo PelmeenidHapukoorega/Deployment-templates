@@ -10,12 +10,6 @@ param retentionInDays int = 30
 @description('SKU for the log analytics workspace')
 param sku string = 'PerGB2018'
 
-@description('List of resource IDs to send diagnostic logs/metrics to the workspace')
-param diagnosticTargets array = []
-
-@description('Optional log category grouping in diagnostic settings. Doesnt work with VMs, set to false then')
-param enableLogCategory bool = true
-
 @description('Email for alert notifications. Leave empty to skip creation')
 param alertEmail string = ''
 
@@ -130,3 +124,9 @@ resource memoryAlerts 'Microsoft.Insights/metricAlerts@2018-03-01' = [for (targe
   }
   tags: tags
 }]
+
+
+output workspaceId string = logAnalyticsWorkspace.id
+output workspaceName string = logAnalyticsWorkspace.name
+output workspaceCustomerId string = logAnalyticsWorkspace.properties.customerId
+output actionGroupId string = !empty(alertEmail) ? actionGroup.id : ''
