@@ -23,6 +23,9 @@ param alertEmail string = ''
 param alertTargets array = []
 
 @description('CPU alert for each alert target')
+param enableCpuAlert bool = true
+
+@description('Memory alert for each alert target')
 param enableMemoryAlert bool = true
 
 @description('CPU % threshold for alert trigger')
@@ -77,6 +80,7 @@ resource cpuAlerts 'Microsoft.Insights/metricAlerts@2018-03-01' = [for (targetId
       'odata.type': 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
       allOf: [
         {
+          criterionType: 'StaticThresholdCriterion'
           name: 'HighCPU'
           metricNamespace: 'Microsoft.Compute/virtualMachines'
           metricName: 'Percentage CPU'
@@ -108,6 +112,7 @@ resource memoryAlerts 'Microsoft.Insights/metricAlerts@2018-03-01' = [for (targe
       'odata.type': 'Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria'
       allOf: [
         {
+          criterionType: 'StaticThresholdCriterion'
           name: 'LowMemory'
           metricNamespace: 'Microsoft.Compute/virtualMachines'
           metricName: 'Available Memory Bytes'
