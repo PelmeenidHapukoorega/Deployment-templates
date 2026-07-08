@@ -33,3 +33,33 @@ param memoryThreshold int = 500000000
 
 @description('Tags to apply to all resources')
 param tags object = {}
+
+
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
+  name: '${prefix}-law'
+  location: location
+  properties: {
+    sku: {
+      name: sku
+    }
+    retentionInDays: retentionInDays
+  }
+  tags: tags
+}
+
+resource actionGroup 'Microsoft.Insights/actionGroups@2023-01-01' = if (!empty(alertEmail)) {
+  name: '${prefix}-action-group'
+  location: 'global'
+  properties: {
+    groupShortName: take('${prefix}ag', 12)
+    enabled: true
+    emailReceivers: [
+      {
+        name: 'primary'
+        emailAddress: alertEmail
+        useCommonAlertSchema: true
+      }
+    ] 
+  }
+  tags: tags
+}
