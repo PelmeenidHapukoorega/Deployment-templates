@@ -43,3 +43,24 @@ module vmResources 'vm.bicep' = {
         sshPublicKey: sshPublicKey
     }
 }
+
+module observability '../../modules/observability/main.bicep' = {
+    name: 'observabilityDeployment'
+    scope: rg
+    params: {
+        prefix: prefix
+        location: location
+        alertEmail: alertEmail
+        alertTargets: [vmResources.outputs.vmId]
+        tags: {
+            Environment: 'Test'
+            Project: 'observability-module-example'
+        }
+    }
+}
+
+output vmId string = vmResources.outputs.vmId
+output vmPublicIp string = vmResources.outputs.vmPublicIp
+output workspaceId string = observability.outputs.workspaceId
+output workspaceName string = observability.outputs.workspaceName
+output actionGroupId string = observability.outputs.actionGroupId
