@@ -33,3 +33,13 @@ module networking '../../modules/networking/main.bicep' = {
     }
 }
 
+module vmResources 'vm.bicep' = {
+    name: 'vmDeployment'
+    scope:rg
+    params: {
+        prefix: prefix
+        location: location
+        subnetId: networking.outputs.subnetIds[0]
+        sshPublicKey: sshPublicKey
+    }
+}
